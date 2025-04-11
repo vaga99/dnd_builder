@@ -35,8 +35,8 @@ class Classe
     #[ORM\Column(type: Types::TEXT)]
     private ?string $starting_equipment = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $primary_ability = null;
+    #[ORM\Column(type: Types::ARRAY)]
+    private array $primary_ability = [];
 
     public function getId(): ?int
     {
@@ -127,12 +127,12 @@ class Classe
         return $this;
     }
 
-    public function getPrimaryAbility(): ?string
+    public function getPrimaryAbility(): ?array
     {
         return $this->primary_ability;
     }
 
-    public function setPrimaryAbility(string $primary_ability): static
+    public function setPrimaryAbility(array $primary_ability): static
     {
         $this->primary_ability = $primary_ability;
 
