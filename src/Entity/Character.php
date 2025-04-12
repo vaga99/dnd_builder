@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\CharacterRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: CharacterRepository::class)]
+#[ORM\Table(name: '`character`')]
+class Character
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
+    #[ORM\Column]
+    private array $stats = [];
+
+    #[ORM\Column]
+    private ?int $level = null;
+
+    /**
+     * @var Collection<int, Classe>
+     */
+    #[ORM\ManyToMany(targetEntity: Classe::class, inversedBy: 'characters')]
+    private Collection $Classes;
+
+    #[ORM\Column(length: 255)]
+    private ?string $Species = null;
+
+    public function __construct()
+    {
+        $this->Classes = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getStats(): array
+    {
+        return $this->stats;
+    }
+
+    public function setStats(array $stats): static
+    {
+        $this->stats = $stats;
+
+        return $this;
+    }
+
+    public function getLevel(): ?int
+    {
+        return $this->level;
+    }
+
+    public function setLevel(int $level): static
+    {
+        $this->level = $level;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Classe>
+     */
+    public function getClasses(): Collection
+    {
+        return $this->Classes;
+    }
+
+    public function addClasse(Classe $classe): static
+    {
+        if (!$this->Classes->contains($classe)) {
+            $this->Classes->add($classe);
+        }
+
+        return $this;
+    }
+
+    public function removeClasse(Classe $classe): static
+    {
+        $this->Classes->removeElement($classe);
+
+        return $this;
+    }
+
+    public function getSpecies(): ?string
+    {
+        return $this->Species;
+    }
+
+    public function setSpecies(string $Species): static
+    {
+        $this->Species = $Species;
+
+        return $this;
+    }
+}
