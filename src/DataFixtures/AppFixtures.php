@@ -11,14 +11,6 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-        for ($i=0; $i <20; $i++) { 
-            $test = new Test();
-            $test->setName('name '.$i);
-            $manager->persist($test);
-        }
-
         $fighter = new Classe();
         $fighter->setName("Fighter");
         $fighter->setHitPointDie("10");
