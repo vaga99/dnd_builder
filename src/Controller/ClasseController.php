@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\CharacterClasse;
 use App\Entity\Classe;
+use App\Repository\CharacterClasseRepository;
 use App\Repository\CharacterRepository;
 use App\Repository\ClasseRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,18 +58,29 @@ final class ClasseController extends AbstractController
      * Add Classe
      */
     #[Route('/api/classes', name: 'createClasse', methods: ['POST'])]
-    public function createClasse(Request $request, SerializerInterface $serializer, CharacterRepository $characterRepository, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+    public function createClasse(Request $request, SerializerInterface $serializer, CharacterRepository $characterRepository, CharacterClasseRepository $characterClasseRepository, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $classe = $serializer->deserialize($request->getContent(), Classe::class, 'json');
         
         $content = $request->toArray();
-        $idCharacters = $content['id_characters'] ?? null;
+        $characters = $content['characters'] ?? null;
         
-        if(is_array($idCharacters) && count($idCharacters) > 0) {
-            for ($i=0; $i < count($idCharacters) ; $i++) {
-                $character = $characterRepository->find($idCharacters[$i]);
-                if($character) {
-                    $classe->addCharacter($characterRepository->find($idCharacters[$i]));
+        if(is_array($characters) && count($characters) > 0) {
+            for ($i=0; $i < count($characters) ; $i++) {
+
+                // Check if level & character exist in request
+                if(isset($characters[$i]["character"]) && isset($characters[$i]["level"])) {
+                    $character = $characterRepository->find($characters[$i]["character"]) ?? null;
+                    $level = $characters[$i]["level"];
+
+                    // Security check if character & field are valid
+                    if($character && is_int($level)) {
+                        $characterClasse = new CharacterClasse();
+                        $characterClasse->setClasse($classe);
+                        $characterClasse->setCharacter($character);
+                        $characterClasse->setLevel($level);
+                        $em->persist($characterClasse);
+                    }
                 }
             }
         }
@@ -88,31 +101,25 @@ final class ClasseController extends AbstractController
     {
         $updatedClasse = $serializer->deserialize($request->getContent(), Classe::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $classe]);
         
-        /**
-         * Get id characters in request
-         */
+        // Get characters in request
         $content = $request->toArray();
-        $idCharacters = $content["id_characters"] ?? null;
+        $characters = $content["characters"] ?? null;
         
-        if(is_array($idCharacters) && count($idCharacters) > 0) {
-            $classeCharacters = $classe->getCharacters();
+        if(is_array($characters) && count($characters) > 0) {
+            $characterClasses = $classe->getCharacterClasse();
 
-            /**
-             * Delete old characters
-             */
-            if(count($classeCharacters)) {
-                for ($i=0; $i < count($classeCharacters); $i++) {
-                    $updatedClasse->removeCharacter($characterRepository->find($classeCharacters[$i]->getId()));
+            // Delete old characters
+            if(count($characterClasses)) {
+                for ($i=0; $i < count($characterClasses); $i++) {
+                    $updatedClasse->removeCharacter($characterRepository->find($characterClasses[$i]->getId()));
                 }
             }
 
-            /**
-             * Add new characters
-             */
-            for ($i=0; $i < count($idCharacters) ; $i++) {
-                $character = $characterRepository->find($idCharacters[$i]);
+            // Add new characters
+            for ($i=0; $i < count($characters) ; $i++) {
+                $character = $characterRepository->find($characters[$i]);
                 if($character) {
-                    $updatedClasse->addCharacter($characterRepository->find($idCharacters[$i]));
+                    $updatedClasse->addCharacter($characterRepository->find($characters[$i]));
                 }
             }
         }
