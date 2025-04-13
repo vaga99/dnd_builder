@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ClasseRepository::class)]
 class Classe
@@ -14,30 +15,39 @@ class Classe
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[GROUPS(["getClasses"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[GROUPS(["getClasses"])]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[GROUPS(["getClasses"])]
     private ?int $hit_point_die = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
+    #[GROUPS(["getClasses"])]
     private array $saving_throw_proficiencies = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
+    #[GROUPS(["getClasses"])]
     private array $weapon_proficiencies = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
+    #[GROUPS(["getClasses"])]
     private array $skill_proficiencies = [];
 
     #[ORM\Column(type: Types::TEXT)]
+    #[GROUPS(["getClasses"])]
     private ?string $starting_equipment = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
+    #[GROUPS(["getClasses"])]
     private array $primary_ability = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
+    #[GROUPS(["getClasses"])]
     private ?array $armor_training = null;
 
     /**
