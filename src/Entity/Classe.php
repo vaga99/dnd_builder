@@ -24,31 +24,31 @@ class Classe
 
     #[ORM\Column]
     #[GROUPS(["getClasses"])]
-    private ?int $hit_point_die = null;
+    private ?int $hitPointDie = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
-    private array $saving_throw_proficiencies = [];
+    private array $savingThrowProficiencies = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
-    private array $weapon_proficiencies = [];
+    private array $weaponProficiencies = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
-    private array $skill_proficiencies = [];
+    private array $skillProficiencies = [];
 
     #[ORM\Column(type: Types::TEXT)]
     #[GROUPS(["getClasses"])]
-    private ?string $starting_equipment = null;
+    private ?string $startingEquipment = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
-    private array $primary_ability = [];
+    private array $primaryAbility = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
     #[GROUPS(["getClasses"])]
-    private ?array $armor_training = null;
+    private ?array $armorTraining = null;
 
     /**
      * @var Collection<int, Character>
@@ -83,84 +83,96 @@ class Classe
 
     public function getHitPointDie(): ?int
     {
-        return $this->hit_point_die;
+        return $this->hitPointDie;
     }
 
-    public function setHitPointDie(int $hit_point_die): static
+    public function setHitPointDie(int $hitPointDie): static
     {
-        $this->hit_point_die = $hit_point_die;
+        $this->hitPointDie = $hitPointDie;
 
         return $this;
     }
 
     public function getSavingThrowProficiencies(): array
     {
-        return $this->saving_throw_proficiencies;
+        return $this->savingThrowProficiencies;
     }
 
-    public function setSavingThrowProficiencies(array $saving_throw_proficiencies): static
+    public function setSavingThrowProficiencies(array $savingThrowProficiencies): static
     {
-        $this->saving_throw_proficiencies = $saving_throw_proficiencies;
+        $this->savingThrowProficiencies = $savingThrowProficiencies;
 
         return $this;
     }
 
     public function getWeaponProficiencies(): array
     {
-        return $this->weapon_proficiencies;
+        return $this->weaponProficiencies;
     }
 
-    public function setWeaponProficiencies(array $weapon_proficiencies): static
+    public function setWeaponProficiencies(array $weaponProficiencies): static
     {
-        $this->weapon_proficiencies = $weapon_proficiencies;
+        $this->weaponProficiencies = $weaponProficiencies;
 
         return $this;
     }
 
     public function getSkillProficiencies(): array
     {
-        return $this->skill_proficiencies;
+        return $this->skillProficiencies;
     }
 
-    public function setSkillProficiencies(array $skill_proficiencies): static
+    public function setSkillProficiencies(array $skillProficiencies): static
     {
-        $this->skill_proficiencies = $skill_proficiencies;
+        $this->skillProficiencies = $skillProficiencies;
 
         return $this;
     }
 
     public function getStartingEquipment(): ?string
     {
-        return $this->starting_equipment;
+        return $this->startingEquipment;
     }
 
-    public function setStartingEquipment(string $starting_equipment): static
+    public function setStartingEquipment(string $startingEquipment): static
     {
-        $this->starting_equipment = $starting_equipment;
+        $this->startingEquipment = $startingEquipment;
 
         return $this;
     }
 
     public function getPrimaryAbility(): ?array
     {
-        return $this->primary_ability;
+        return $this->primaryAbility;
     }
 
-    public function setPrimaryAbility(array $primary_ability): static
+    public function setPrimaryAbility(array $primaryAbility): static
     {
-        $this->primary_ability = $primary_ability;
+        $this->primaryAbility = $primaryAbility;
 
         return $this;
     }
 
     public function getArmorTraining(): ?array
     {
-        return $this->armor_training;
+        return $this->armorTraining;
     }
 
-    public function setArmorTraining(?array $armor_training): static
+    public function setArmorTraining(?array $armorTraining): static
     {
-        $this->armor_training = $armor_training;
+        $this->armorTraining = $armorTraining;
+
+        return $this;
+    }
+
+    public function getToolProficiencies(): ?array
+    {
+        return $this->tool_proficiencies;
+    }
+
+    public function setToolProficiencies(?array $tool_proficiencies): static
+    {
+        $this->tool_proficiencies = $tool_proficiencies;
 
         return $this;
     }
@@ -188,18 +200,6 @@ class Classe
         if ($this->characters->removeElement($character)) {
             $character->removeClasse($this);
         }
-
-        return $this;
-    }
-
-    public function getToolProficiencies(): ?array
-    {
-        return $this->tool_proficiencies;
-    }
-
-    public function setToolProficiencies(?array $tool_proficiencies): static
-    {
-        $this->tool_proficiencies = $tool_proficiencies;
 
         return $this;
     }

@@ -31,6 +31,7 @@ class Character
     private ?int $level = null;
 
     #[ORM\Column(length: 255)]
+    #[GROUPS(["getClasses"])]
     private ?string $species = null;
 
     /**
