@@ -8,13 +8,11 @@ use App\Repository\CharacterClasseRepository;
 use App\Repository\CharacterRepository;
 use App\Repository\ClasseRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use PhpParser\Builder\Class_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -37,11 +35,26 @@ final class ClasseController extends AbstractController
      * Return a Classe in json format
      */
     #[Route('/api/classes/{id}', name: 'getClasse', methods: ['GET'])]
-    public function getClasseDetails(Classe $classe, SerializerInterface $serializer): JsonResponse
+    public function getClasseDetails(Classe $classe, SerializerInterface $serializer, ClasseRepository $classeRepository, CharacterRepository $characterRepository): JsonResponse
     {
-        $jsonClass = $serializer->serialize($classe, 'json', ['groups' => 'getClasses']);
-        return new JsonResponse($jsonClass, Response::HTTP_OK, [], true);
+
+        $characters = $characterRepository->findByClasse($classe);
+
+        $return = [
+            "classe" => [
+                "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
+                "characters" => json_decode($serializer->serialize($characters, 'json', ['groups' => 'getClasses']))
+            ]
+        ];
+
+        return new JsonResponse(json_encode($return), Response::HTTP_OK, [], true);
     }
+
+    // public function getClasseDetails(Classe $classe, SerializerInterface $serializer): JsonResponse
+    // {
+    //     $jsonClass = $serializer->serialize($classe, 'json', ['groups' => 'getClasses']);
+    //     return new JsonResponse($jsonClass, Response::HTTP_OK, [], true);
+    // }
 
     /**
      * Delete Classe
@@ -106,20 +119,32 @@ final class ClasseController extends AbstractController
         $characters = $content["characters"] ?? null;
         
         if(is_array($characters) && count($characters) > 0) {
-            $characterClasses = $classe->getCharacterClasse();
-
+            $characterClasses = $classe->getCharacterClasse()->toArray();
+        
             // Delete old characters
-            if(count($characterClasses)) {
+            if(is_array($characterClasses) && count($characterClasses) > 0) {
                 for ($i=0; $i < count($characterClasses); $i++) {
-                    $updatedClasse->removeCharacter($characterRepository->find($characterClasses[$i]->getId()));
+                    $em->remove($characterClasses[$i]);
                 }
             }
+        
+            if(is_array($characters) && count($characters) > 0) {
+                for ($i=0; $i < count($characters) ; $i++) {
 
-            // Add new characters
-            for ($i=0; $i < count($characters) ; $i++) {
-                $character = $characterRepository->find($characters[$i]);
-                if($character) {
-                    $updatedClasse->addCharacter($characterRepository->find($characters[$i]));
+                    // Check if level & character exist in request
+                    if(isset($characters[$i]["character"]) && isset($characters[$i]["level"])) {
+                        $character = $characterRepository->find($characters[$i]["character"]) ?? null;
+                        $level = $characters[$i]["level"];
+
+                        // Security check if character & field are valid
+                        if($character && is_int($level)) {
+                            $characterClasse = new CharacterClasse();
+                            $characterClasse->setClasse($classe);
+                            $characterClasse->setCharacter($character);
+                            $characterClasse->setLevel($level);
+                            $em->persist($characterClasse);
+                        }
+                    }
                 }
             }
         }

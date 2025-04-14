@@ -57,11 +57,11 @@ class Classe
      * @var Collection<int, CharacterClasse>
      */
     #[ORM\OneToMany(targetEntity: CharacterClasse::class, mappedBy: 'classe')]
-    private Collection $characterClasse;
+    private Collection $characterClasses;
 
     public function __construct()
     {
-        $this->characterClasse = new ArrayCollection();
+        $this->characterClasses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -180,15 +180,15 @@ class Classe
     /**
      * @return Collection<int, CharacterClasse>
      */
-    public function getCharacterClasse(): Collection
+    public function getCharacterClasses(): Collection
     {
-        return $this->characterClasse;
+        return $this->characterClasses;
     }
 
     public function addCharacterClasse(CharacterClasse $characterClasse): static
     {
-        if (!$this->characterClasse->contains($characterClasse)) {
-            $this->characterClasse->add($characterClasse);
+        if (!$this->characterClasses->contains($characterClasse)) {
+            $this->characterClasses->add($characterClasse);
             $characterClasse->setClasse($this);
         }
 
@@ -197,7 +197,7 @@ class Classe
 
     public function removeCharacterClasse(CharacterClasse $characterClasse): static
     {
-        if ($this->characterClasse->removeElement($characterClasse)) {
+        if ($this->characterClasses->removeElement($characterClasse)) {
             // set the owning side to null (unless already changed)
             if ($characterClasse->getClasse() === $this) {
                 $characterClasse->setClasse(null);
