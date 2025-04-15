@@ -31,13 +31,26 @@ class ClasseRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Classe
+    //    public function findCharacters($value): ?Classe
     //    {
-    //        return $this->createQueryBuilder('c')
+    //        return $this->createQueryBuilder('cl')
+    //            ->leftJoin('ch.character', 'ch')
+    //            ->leftJoin('ch.character', 'ch', 'WITH', 'cc.character = :val')
     //            ->andWhere('c.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
-    //            ->getOneOrNullResult()
+    //            ->getResult()
+    //        ;
+    //    }
+
+    //    public function findCharacterClasse($value): ?array
+    //    {
+    //        return $this->createQueryBuilder('cl')
+    //            ->leftJoin('cl.characterClasse', 'cc')
+    //            ->andWhere('cc = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getResult()
     //        ;
     //    }
 }
