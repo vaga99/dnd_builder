@@ -50,18 +50,18 @@ class Classe
     #[GROUPS(["getClasses"])]
     private ?array $armorTraining = null;
 
-    /**
-     * @var Collection<int, Character>
-     */
-    #[ORM\ManyToMany(targetEntity: Character::class, mappedBy: 'Classes')]
-    private Collection $characters;
-
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
     private ?array $tool_proficiencies = null;
-    
+
+    /**
+     * @var Collection<int, CharacterClasse>
+     */
+    #[ORM\OneToMany(targetEntity: CharacterClasse::class, mappedBy: 'classe')]
+    private Collection $characterClasses;
+
     public function __construct()
     {
-        $this->characters = new ArrayCollection();
+        $this->characterClasses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -178,27 +178,30 @@ class Classe
     }
 
     /**
-     * @return Collection<int, Character>
+     * @return Collection<int, CharacterClasse>
      */
-    public function getCharacters(): Collection
+    public function getCharacterClasses(): Collection
     {
-        return $this->characters;
+        return $this->characterClasses;
     }
 
-    public function addCharacter(Character $character): static
+    public function addCharacterClasse(CharacterClasse $characterClasse): static
     {
-        if (!$this->characters->contains($character)) {
-            $this->characters->add($character);
-            $character->addClasse($this);
+        if (!$this->characterClasses->contains($characterClasse)) {
+            $this->characterClasses->add($characterClasse);
+            $characterClasse->setClasse($this);
         }
 
         return $this;
     }
 
-    public function removeCharacter(Character $character): static
+    public function removeCharacterClasse(CharacterClasse $characterClasse): static
     {
-        if ($this->characters->removeElement($character)) {
-            $character->removeClasse($this);
+        if ($this->characterClasses->removeElement($characterClasse)) {
+            // set the owning side to null (unless already changed)
+            if ($characterClasse->getClasse() === $this) {
+                $characterClasse->setClasse(null);
+            }
         }
 
         return $this;

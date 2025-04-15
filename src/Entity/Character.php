@@ -35,14 +35,14 @@ class Character
     private ?string $species = null;
 
     /**
-     * @var Collection<int, Classe>
+     * @var Collection<int, characterClasses>
      */
-    #[ORM\ManyToMany(targetEntity: Classe::class, inversedBy: 'characters')]
-    private Collection $Classes;
+    #[ORM\OneToMany(targetEntity: CharacterClasse::class, mappedBy: 'character')]
+    private Collection $characterClasses;
 
     public function __construct()
     {
-        $this->Classes = new ArrayCollection();
+        $this->characterClasses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,25 +99,31 @@ class Character
     }
 
     /**
-     * @return Collection<int, Classe>
+     * @return Collection<int, CharacterClasse>
      */
-    public function getClasses(): Collection
+    public function getcharacterClasses(): Collection
     {
-        return $this->Classes;
+        return $this->characterClasses;
     }
 
-    public function addClasse(Classe $classe): static
+    public function addCharacterClasse(CharacterClasse $characterClasse): static
     {
-        if (!$this->Classes->contains($classe)) {
-            $this->Classes->add($classe);
+        if (!$this->characterClasses->contains($characterClasse)) {
+            $this->characterClasses->add($characterClasse);
+            $characterClasse->setCharacter($this);
         }
 
         return $this;
     }
 
-    public function removeClasse(Classe $classe): static
+    public function removeCharacterClasse(CharacterClasse $characterClasse): static
     {
-        $this->Classes->removeElement($classe);
+        if ($this->characterClasses->removeElement($characterClasse)) {
+            // set the owning side to null (unless already changed)
+            if ($characterClasse->getCharacter() === $this) {
+                $characterClasse->setCharacter(null);
+            }
+        }
 
         return $this;
     }
