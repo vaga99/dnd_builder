@@ -3,13 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\ClasseRepository;
+use App\Validator as CustomAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClasseRepository::class)]
+#[UniqueEntity("name")]
 class Classe
 {
     #[ORM\Id]
@@ -20,22 +24,28 @@ class Classe
 
     #[ORM\Column(length: 255)]
     #[GROUPS(["getClasses"])]
+    #[Assert\NotBlank(message: "Classe name is mandatory")]
+    #[Assert\Length(min: 1, max: 255, minMessage: "Name must have at least {{ limit }} characters", maxMessage: "Name cannot have more than {{ limit }} characters")]
     private ?string $name = null;
 
     #[ORM\Column]
     #[GROUPS(["getClasses"])]
+    #[Assert\Choice([6, 8, 10, 12])]
     private ?int $hitPointDie = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
+    #[CustomAssert\IsValidStat(mode: 'loose')]
     private array $savingThrowProficiencies = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
+    #[CustomAssert\IsValidWeaponProficiencies(mode: 'loose')]
     private array $weaponProficiencies = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
+    #[CustomAssert\IsValidSkill(mode: 'loose')]
     private array $skillProficiencies = [];
 
     #[ORM\Column(type: Types::TEXT)]
@@ -44,13 +54,16 @@ class Classe
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
+    #[CustomAssert\IsValidSkill(mode: 'loose')]
     private array $primaryAbility = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
     #[GROUPS(["getClasses"])]
+    #[CustomAssert\IsValidArmorTraining(mode: 'loose')]
     private ?array $armorTraining = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]
+    #[CustomAssert\IsValidToolProficiency(mode: 'loose')]
     private ?array $tool_proficiencies = null;
 
     /**

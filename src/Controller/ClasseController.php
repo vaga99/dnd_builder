@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class ClasseController extends AbstractController
 {
@@ -74,9 +75,21 @@ final class ClasseController extends AbstractController
      * Add Classe
      */
     #[Route('/api/classes', name: 'createClasse', methods: ['POST'])]
-    public function createClasse(Request $request, SerializerInterface $serializer, CharacterRepository $characterRepository, CharacterClasseRepository $characterClasseRepository, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
-    {
+    public function createClasse(
+        Request $request, 
+        SerializerInterface $serializer, 
+        CharacterRepository $characterRepository, 
+        EntityManagerInterface $em, 
+        UrlGeneratorInterface $urlGenerator,
+        ValidatorInterface $validator
+    ): JsonResponse {
+
         $classe = $serializer->deserialize($request->getContent(), Classe::class, 'json');
+
+        $errors = $validator->validate($classe);
+        if($errors->count()) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
+        }
         
         $content = $request->toArray();
         $characters = $content['characters'] ?? null;
