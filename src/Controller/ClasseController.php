@@ -23,38 +23,41 @@ final class ClasseController extends AbstractController
      * Return all Classe in json format
      */
     #[Route('/api/classes', name: 'getClasses', methods: ['GET'])]
-    public function getAllClasses(ClasseRepository $classeRepository, SerializerInterface $serializer): JsonResponse
+    public function getAllClasses(ClasseRepository $classeRepository, CharacterRepository $characterRepository, SerializerInterface $serializer): JsonResponse
     {
         $classeList = $classeRepository->findAll();
+        $return = [];
+        foreach ($classeList as $key => $classe) {
+            $characterList = $characterRepository->findByClasse($classe);
+            $return[] = [
+                "classe_".$classe->getId() => [
+                    "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
+                    "character_list" => json_decode($serializer->serialize($characterList, 'json', ['groups' => 'getClasses']))
+                ]
+            ];
+        }
 
-        $jsonClassList = $serializer->serialize($classeList, 'json', ['groups' => 'getClasses']);
-        return new JsonResponse($jsonClassList, Response::HTTP_OK, [], true);
+        return new JsonResponse(json_encode($return), Response::HTTP_OK, [], true);
     }
 
     /**
      * Return a Classe in json format
      */
     #[Route('/api/classes/{id}', name: 'getClasse', methods: ['GET'])]
-    public function getClasseDetails(Classe $classe, SerializerInterface $serializer, ClasseRepository $classeRepository, CharacterRepository $characterRepository): JsonResponse
+    public function getClasseDetails(Classe $classe, SerializerInterface $serializer, CharacterRepository $characterRepository): JsonResponse
     {
 
-        $characters = $characterRepository->findByClasse($classe);
+        $characterList = $characterRepository->findByClasse($classe);
 
         $return = [
-            "classe" => [
+            "classe_".$classe->getId() => [
                 "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
-                "characters" => json_decode($serializer->serialize($characters, 'json', ['groups' => 'getClasses']))
+                "character_list" => json_decode($serializer->serialize($characterList, 'json', ['groups' => 'getClasses']))
             ]
         ];
 
         return new JsonResponse(json_encode($return), Response::HTTP_OK, [], true);
     }
-
-    // public function getClasseDetails(Classe $classe, SerializerInterface $serializer): JsonResponse
-    // {
-    //     $jsonClass = $serializer->serialize($classe, 'json', ['groups' => 'getClasses']);
-    //     return new JsonResponse($jsonClass, Response::HTTP_OK, [], true);
-    // }
 
     /**
      * Delete Classe
@@ -119,7 +122,7 @@ final class ClasseController extends AbstractController
         $characters = $content["characters"] ?? null;
         
         if(is_array($characters) && count($characters) > 0) {
-            $characterClasses = $classe->getCharacterClasse()->toArray();
+            $characterClasses = $classe->getCharacterClasses()->toArray();
         
             // Delete old characters
             if(is_array($characterClasses) && count($characterClasses) > 0) {
