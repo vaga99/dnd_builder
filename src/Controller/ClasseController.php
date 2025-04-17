@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -64,6 +65,7 @@ final class ClasseController extends AbstractController
      * Delete Classe
      */
     #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['DELETE'])]
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to delete a Classe')]
     public function deleteClasse(Classe $classe, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($classe);
@@ -75,6 +77,7 @@ final class ClasseController extends AbstractController
      * Add Classe
      */
     #[Route('/api/classes', name: 'createClasse', methods: ['POST'])]
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to create a Classe')]
     public function createClasse(
         Request $request, 
         SerializerInterface $serializer, 
@@ -126,6 +129,7 @@ final class ClasseController extends AbstractController
      * Edit Classe
      */
     #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['PUT'])]
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to update a Classe')]
     public function updateClasse(Request $request, SerializerInterface $serializer, Classe $classe, EntityManagerInterface $em, CharacterRepository $characterRepository): JsonResponse
     {
         $updatedClasse = $serializer->deserialize($request->getContent(), Classe::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $classe]);
