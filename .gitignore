@@ -60,9 +60,8 @@ assets/vendor/
 # migrations
 migrations
 
-# local
-.env.local
+# jwt token
+jwt
 
-###> lexik/jwt-authentication-bundle ###
-/config/jwt/*.pem
-###< lexik/jwt-authentication-bundle ###
+# local env
+.env.local
