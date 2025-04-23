@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -77,6 +78,7 @@ final class ClasseController extends AbstractController
      * Delete Classe
      */
     #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['DELETE'])]
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to delete a Classe')]
     public function deleteClasse(Classe $classe, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse
     {
         $em->remove($classe);
@@ -89,9 +91,22 @@ final class ClasseController extends AbstractController
      * Add Classe
      */
     #[Route('/api/classes', name: 'createClasse', methods: ['POST'])]
-    public function createClasse(Request $request, SerializerInterface $serializer, CharacterRepository $characterRepository, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, TagAwareCacheInterface $cache): JsonResponse
-    {
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to create a Classe')]
+    public function createClasse(
+        Request $request, 
+        SerializerInterface $serializer, 
+        CharacterRepository $characterRepository, 
+        EntityManagerInterface $em, 
+        UrlGeneratorInterface $urlGenerator,
+        ValidatorInterface $validator
+        TagAwareCacheInterface $cache
+    ): JsonResponse {
         $classe = $serializer->deserialize($request->getContent(), Classe::class, 'json');
+
+        $errors = $validator->validate($classe);
+        if($errors->count()) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
+        }
         
         $content = $request->toArray();
         $characters = $content['characters'] ?? null;
@@ -129,6 +144,7 @@ final class ClasseController extends AbstractController
      * Edit Classe
      */
     #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['PUT'])]
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to update a Classe')]
     public function updateClasse(Request $request, SerializerInterface $serializer, Classe $classe, EntityManagerInterface $em, CharacterRepository $characterRepository, TagAwareCacheInterface $cache): JsonResponse
     {
         $updatedClasse = $serializer->deserialize($request->getContent(), Classe::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $classe]);
