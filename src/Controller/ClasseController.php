@@ -16,6 +16,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 final class ClasseController extends AbstractController
 {
@@ -23,19 +26,30 @@ final class ClasseController extends AbstractController
      * Return all Classe in json format
      */
     #[Route('/api/classes', name: 'getClasses', methods: ['GET'])]
-    public function getAllClasses(ClasseRepository $classeRepository, CharacterRepository $characterRepository, SerializerInterface $serializer): JsonResponse
+    public function getAllClasses(ClasseRepository $classeRepository, CharacterRepository $characterRepository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
-        $classeList = $classeRepository->findAll();
-        $return = [];
-        foreach ($classeList as $key => $classe) {
-            $characterList = $characterRepository->findByClasse($classe);
-            $return[] = [
-                "classe_".$classe->getId() => [
-                    "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
-                    "character_list" => json_decode($serializer->serialize($characterList, 'json', ['groups' => 'getClasses']))
-                ]
-            ];
-        }
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 2);
+        $idCache = "getAllClasses-". $page . '-'.$limit;
+
+        // Use cache to return value
+        $return = $cache->get($idCache, function (ItemInterface $item) use ($classeRepository, $characterRepository, $serializer, $page, $limit) {
+            $item->tag("classesCache");
+            $classeList = $classeRepository->findAllWithPagination($page, $limit);
+            $return = [];
+            
+            foreach ($classeList as $key => $classe) {
+                $characterList = $characterRepository->findByClasse($classe);
+                $return[] = [
+                    "classe_".$classe->getId() => [
+                        "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
+                        "character_list" => json_decode($serializer->serialize($characterList, 'json', ['groups' => 'getClasses']))
+                    ]
+                ];
+            }
+            return $return;
+        });
+
 
         return new JsonResponse(json_encode($return), Response::HTTP_OK, [], true);
     }
@@ -63,10 +77,11 @@ final class ClasseController extends AbstractController
      * Delete Classe
      */
     #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['DELETE'])]
-    public function deleteClasse(Classe $classe, EntityManagerInterface $em): JsonResponse
+    public function deleteClasse(Classe $classe, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse
     {
         $em->remove($classe);
         $em->flush();
+        $cache->invalidateTags(["classesCache"]);
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -74,7 +89,7 @@ final class ClasseController extends AbstractController
      * Add Classe
      */
     #[Route('/api/classes', name: 'createClasse', methods: ['POST'])]
-    public function createClasse(Request $request, SerializerInterface $serializer, CharacterRepository $characterRepository, CharacterClasseRepository $characterClasseRepository, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+    public function createClasse(Request $request, SerializerInterface $serializer, CharacterRepository $characterRepository, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, TagAwareCacheInterface $cache): JsonResponse
     {
         $classe = $serializer->deserialize($request->getContent(), Classe::class, 'json');
         
@@ -104,6 +119,7 @@ final class ClasseController extends AbstractController
         $em->persist($classe);
         $em->flush();
 
+        $cache->invalidateTags(["classesCache"]);
         $jsonClass = $serializer->serialize($classe, 'json', ['groups' => 'getClasses']);
         $location = $urlGenerator->generate('getClasse', ['id' => $classe->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         return new JsonResponse($jsonClass, Response::HTTP_CREATED, ["Location" => $location], true);
@@ -113,7 +129,7 @@ final class ClasseController extends AbstractController
      * Edit Classe
      */
     #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['PUT'])]
-    public function updateClasse(Request $request, SerializerInterface $serializer, Classe $classe, EntityManagerInterface $em, CharacterRepository $characterRepository): JsonResponse
+    public function updateClasse(Request $request, SerializerInterface $serializer, Classe $classe, EntityManagerInterface $em, CharacterRepository $characterRepository, TagAwareCacheInterface $cache): JsonResponse
     {
         $updatedClasse = $serializer->deserialize($request->getContent(), Classe::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $classe]);
         
@@ -154,6 +170,7 @@ final class ClasseController extends AbstractController
         
         $em->persist($classe);
         $em->flush();
+        $cache->invalidateTags(["classesCache"]);
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }
