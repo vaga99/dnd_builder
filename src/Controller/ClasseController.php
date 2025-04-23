@@ -98,7 +98,7 @@ final class ClasseController extends AbstractController
         CharacterRepository $characterRepository, 
         EntityManagerInterface $em, 
         UrlGeneratorInterface $urlGenerator,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
         TagAwareCacheInterface $cache
     ): JsonResponse {
         $classe = $serializer->deserialize($request->getContent(), Classe::class, 'json');
