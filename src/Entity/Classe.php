@@ -9,8 +9,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 #[ORM\Entity(repositoryClass: ClasseRepository::class)]
 #[UniqueEntity("name")]
@@ -54,7 +55,7 @@ class Classe
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
     #[GROUPS(["getClasses"])]
-    #[CustomAssert\IsValidSkill(mode: 'loose')]
+    #[CustomAssert\IsValidStat(mode: 'loose')]
     private array $primaryAbility = [];
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true)]

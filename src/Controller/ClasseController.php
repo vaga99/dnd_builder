@@ -8,6 +8,7 @@ use App\Repository\CharacterClasseRepository;
 use App\Repository\CharacterRepository;
 use App\Repository\ClasseRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -27,6 +28,7 @@ final class ClasseController extends AbstractController
      * Return all Classe in json format
      */
     #[Route('/api/classes', name: 'getClasses', methods: ['GET'])]
+    #[IsGranted('ROLE_DM', message: 'you\'re not allowed to delete a Classe')]
     public function getAllClasses(ClasseRepository $classeRepository, CharacterRepository $characterRepository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
         $page = $request->get('page', 1);
@@ -38,13 +40,15 @@ final class ClasseController extends AbstractController
             $item->tag("classesCache");
             $classeList = $classeRepository->findAllWithPagination($page, $limit);
             $return = [];
+            $context = SerializationContext::create()->setGroups(['getClasses']);
+            $context2 = SerializationContext::create()->setGroups(['getClasses']);
             
             foreach ($classeList as $key => $classe) {
                 $characterList = $characterRepository->findByClasse($classe);
                 $return[] = [
                     "classe_".$classe->getId() => [
-                        "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
-                        "character_list" => json_decode($serializer->serialize($characterList, 'json', ['groups' => 'getClasses']))
+                        "classe_info" => json_decode($serializer->serialize($classe, 'json', $context)),
+                        "character_list" => json_decode($serializer->serialize($characterList, 'json', $context2))
                     ]
                 ];
             }
@@ -61,13 +65,13 @@ final class ClasseController extends AbstractController
     #[Route('/api/classes/{id}', name: 'getClasse', methods: ['GET'])]
     public function getClasseDetails(Classe $classe, SerializerInterface $serializer, CharacterRepository $characterRepository): JsonResponse
     {
-
+        $context = SerializationContext::create()->setGroups(['getClasses']);
         $characterList = $characterRepository->findByClasse($classe);
 
         $return = [
             "classe_".$classe->getId() => [
-                "classe_info" => json_decode($serializer->serialize($classe, 'json', ['groups' => 'getClasses'])),
-                "character_list" => json_decode($serializer->serialize($characterList, 'json', ['groups' => 'getClasses']))
+                "classe_info" => json_decode($serializer->serialize($classe, 'json', $context)),
+                "character_list" => json_decode($serializer->serialize($characterList, 'json', $context))
             ]
         ];
 
@@ -134,8 +138,10 @@ final class ClasseController extends AbstractController
         $em->persist($classe);
         $em->flush();
 
+        $context = SerializationContext::create()->setGroups(['getClasses']);
+
         $cache->invalidateTags(["classesCache"]);
-        $jsonClass = $serializer->serialize($classe, 'json', ['groups' => 'getClasses']);
+        $jsonClass = $serializer->serialize($classe, 'json', $context);
         $location = $urlGenerator->generate('getClasse', ['id' => $classe->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
         return new JsonResponse($jsonClass, Response::HTTP_CREATED, ["Location" => $location], true);
     }
@@ -143,12 +149,26 @@ final class ClasseController extends AbstractController
     /**
      * Edit Classe
      */
-    #[Route('/api/classes/{id}', name: 'deleteClasse', methods: ['PUT'])]
+    #[Route('/api/classes/{id}', name: 'editClasse', methods: ['PUT'])]
     #[IsGranted('ROLE_DM', message: 'you\'re not allowed to update a Classe')]
-    public function updateClasse(Request $request, SerializerInterface $serializer, Classe $classe, EntityManagerInterface $em, CharacterRepository $characterRepository, TagAwareCacheInterface $cache): JsonResponse
+    public function updateClasse(Request $request, SerializerInterface $serializer, Classe $classe, EntityManagerInterface $em, CharacterRepository $characterRepository, TagAwareCacheInterface $cache, ValidatorInterface $validator): JsonResponse
     {
-        $updatedClasse = $serializer->deserialize($request->getContent(), Classe::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $classe]);
+        $updatedClasse = $serializer->deserialize($request->getContent(), Classe::class, 'json');
+
+        $classe->setName($updatedClasse->getName());
+        $classe->setHitPointDie($updatedClasse->getHitPointDie());
+        $classe->setSavingThrowProficiencies($updatedClasse->getSavingThrowProficiencies());
+        $classe->setWeaponProficiencies($updatedClasse->getWeaponProficiencies());
+        $classe->setSkillProficiencies($updatedClasse->getSkillProficiencies());
+        $classe->setPrimaryAbility($updatedClasse->getPrimaryAbility());
+        $classe->setArmorTraining($updatedClasse->getArmorTraining());
+        $classe->setToolProficiencies($updatedClasse->getToolProficiencies());
         
+        $errors = $validator->validate($classe);
+        if($errors->count()) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
+        }
+
         // Get characters in request
         $content = $request->toArray();
         $characters = $content["characters"] ?? null;
