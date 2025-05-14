@@ -12,9 +12,42 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Hateoas\Configuration\Annotation\Exclusion;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 
 #[ORM\Entity(repositoryClass: ClasseRepository::class)]
 #[UniqueEntity("name")]
+#[Hateoas\Relation(
+    'self',
+    href: new Hateoas\Route(
+        'getClasse',
+        parameters: [
+            'id' => 'expr(object.getId())',
+        ],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ["getClasses"])
+)]
+#[Hateoas\Relation(
+    'delete',
+    href: new Hateoas\Route(
+        'deleteClasse',
+        parameters: [
+            'id' => 'expr(object.getId())',
+        ],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ["getClasses"], excludeIf: "expr(not is_granted('ROLE_DM'))")
+)]
+#[Hateoas\Relation(
+    'update',
+    href: new Hateoas\Route(
+        'editClasse',
+        parameters: [
+            'id' => 'expr(object.getId())',
+        ],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ["getClasses"], excludeIf: "expr(not is_granted('ROLE_DM'))")
+)]
 class Classe
 {
     #[ORM\Id]
