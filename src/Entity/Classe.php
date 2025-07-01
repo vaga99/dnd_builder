@@ -21,7 +21,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 #[Hateoas\Relation(
     'self',
     href: new Hateoas\Route(
-        'getClasse',
+        'getClasseApi',
         parameters: [
             'id' => 'expr(object.getId())',
         ],
@@ -31,7 +31,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 #[Hateoas\Relation(
     'delete',
     href: new Hateoas\Route(
-        'deleteClasse',
+        'deleteClasseApi',
         parameters: [
             'id' => 'expr(object.getId())',
         ],
@@ -41,7 +41,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 #[Hateoas\Relation(
     'update',
     href: new Hateoas\Route(
-        'editClasse',
+        'editClasseApi',
         parameters: [
             'id' => 'expr(object.getId())',
         ],
