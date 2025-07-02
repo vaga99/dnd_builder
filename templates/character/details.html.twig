@@ -18,5 +18,8 @@
     </ul>
     <p><b>Level</b> : {{ character.level }}</p>
     <p><b>Specie</b> : {{ character.species }}</p>
+
+    <a class="btn btn-primary" href="{{ path('editCharacter', {id: character.id}) }}">Modifier</a>
+    <a class="btn btn-danger" href="{{ path('deleteCharacter', {id: character.id}) }}">Supprimer</a>
 </div>
 {% endblock %}
