@@ -15,6 +15,8 @@ use JMS\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use App\Form\Type\ClasseType\ClasseType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class ClasseController extends AbstractController
 {
@@ -65,11 +67,54 @@ final class ClasseController extends AbstractController
      * Return a Classe in twig template
      */
     #[Route('/newClasses', name: 'createClasse')]
-    public function getClasseDetails(): Response
+    public function createClasse(Request $request, EntityManagerInterface $em): Response
     {
-
         $classe = new Classe();
         $form = $this->createForm(ClasseType::class, $classe);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // $form->getData() holds the submitted values
+            // but, the original `$task` variable has also been updated
+            $classe = $form->getData();
+
+            $em->persist($classe);
+            $em->flush();
+
+            return $this->redirectToRoute('editClasse', ['id' => $classe->getId()]);
+        }
+
+        return $this->render('classe/index.html.twig', [
+            'classe' => $classe,
+            'form' => $form
+        ]);
+    }
+
+    /**
+     * Edit Classe
+     */
+    #[Route('/classes/{id}', name: 'editClasse')]
+    public function updateClasse(
+        Classe $classe, 
+        Request $request, 
+        EntityManagerInterface $em
+        ): Response
+    {
+        $form = $this->createForm(ClasseType::class, $classe);
+        
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // $form->getData() holds the submitted values
+            // but, the original `$task` variable has also been updated
+            $classe = $form->getData();
+
+            $em->persist($classe);
+            $em->flush();
+
+            return $this->redirectToRoute('editClasse', ['id' => $classe->getId()]);
+        }
+
         return $this->render('classe/index.html.twig', [
             'classe' => $classe,
             'form' => $form

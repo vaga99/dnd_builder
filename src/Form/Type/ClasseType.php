@@ -16,80 +16,80 @@ class ClasseType extends AbstractType
             ->add('name', TextType::class)
             ->add('hitPointDie', ChoiceType::class, [
                 'choices' => [
-                    '6',
-                    '8',
-                    '10',
-                    '12'
+                    'D6' => '6',
+                    'D8' => '8',
+                    'D10' => '10',
+                    'D12' => '12'
                 ]
             ])
             ->add('savingThrowProficiencies', ChoiceType::class, [
                 'choices' => [
-                    'Strength', 
-                    'Dexterity', 
-                    'Constitution', 
-                    'Wisdom', 
-                    'Intelligence', 
-                    'Charisma'
+                    'Strength' => 'Strength', 
+                    'Dexterity' => 'Dexterity', 
+                    'Constitution' => 'Constitution', 
+                    'Wisdom' => 'Wisdom', 
+                    'Intelligence' => 'Intelligence', 
+                    'Charisma' => 'Charisma'
                 ],
                 'multiple' => true,
             ])
             ->add('weaponProficiencies', ChoiceType::class, [
                 'choices' => [
-                    'Simple', 
-                    'Martial'
+                    'Simple' => 'Simple', 
+                    'Martial' => 'Martial'
                 ],
                 'multiple' => true,
             ])
             ->add('skillProficiencies', ChoiceType::class, [
                 'choices' => [
-                    'Athletics',
-                    'Acrobatics',
-                    'Sleight of Hand',
-                    'Stealth',
-                    'Arcana',
-                    'History',
-                    'Investigation',
-                    'Nature',
-                    'Religion',
-                    'Animal Handling',
-                    'Insight',
-                    'Medicine',
-                    'Perception',
-                    'Survival',
-                    'Deception',
-                    'Intimidation',
-                    'Performance',
-                    'Persuasion'
+                    'Athletics' => 'Athletics',
+                    'Acrobatics' => 'Acrobatics',
+                    'Sleight of Hand' => 'Sleight of Hand',
+                    'Stealth' => 'Stealth',
+                    'Arcana' => 'Arcana',
+                    'History' => 'History',
+                    'Investigation' => 'Investigation',
+                    'Nature' => 'Nature',
+                    'Religion' => 'Religion',
+                    'Animal Handling' => 'Animal Handling',
+                    'Insight' => 'Insight',
+                    'Medicine' => 'Medicine',
+                    'Perception' => 'Perception',
+                    'Survival' => 'Survival',
+                    'Deception' => 'Deception',
+                    'Intimidation' => 'Intimidation',
+                    'Performance' => 'Performance',
+                    'Persuasion' => 'Persuasion'
                 ],
                 'multiple' => true,
             ])
             ->add('startingEquipment', TextType::class)
             ->add('primaryAbility', ChoiceType::class, [
                 'choices' => [
-                    'Strength', 
-                    'Dexterity', 
-                    'Constitution', 
-                    'Wisdom', 
-                    'Intelligence', 
-                    'Charisma'
+                    'Strength' => 'Strength', 
+                    'Dexterity' => 'Dexterity', 
+                    'Constitution' => 'Constitution', 
+                    'Wisdom' => 'Wisdom', 
+                    'Intelligence' => 'Intelligence', 
+                    'Charisma' => 'Charisma'
                 ],
                 'multiple' => true,
             ])
             ->add('armorTraining', ChoiceType::class, [
                 'choices' => [
-                    'Light', 
-                    'Intermediate', 
-                    'Heavy', 
-                    'Shield'
+                    'Light' => 'Light', 
+                    'Intermediate' => 'Intermediate', 
+                    'Heavy' => 'Heavy', 
+                    'Shield' => 'Shield'
                 ],
                 'multiple' => true,
             ])
             ->add('tool_proficiencies', ChoiceType::class, [
                 'choices' => [
-                    "Brewer's supplies", 
-                    "Calligrapher's supplies", 
-                    "Dice set", 
-                    "Drum"
+                    "Brewer's supplies" => "Brewer's supplies", 
+                    "Calligrapher's supplies" => "Calligrapher's supplies", 
+                    "Dice set" => "Dice set", 
+                    "Drum" => "Drum"
                 ],
                 'multiple' => true,
             ])
