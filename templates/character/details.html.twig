@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ClasseController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <p><b>Name</b> : {{ character.name }}</p>
+    <p><b>Stats</b> : </p>
+    <ul>
+        {% for name, stat in character.stats %}
+            <li><p>{{ name }} : {{ stat }}</p></li>
+        {% endfor %}
+    </ul>
+    <p><b>Level</b> : {{ character.level }}</p>
+    <p><b>Specie</b> : {{ character.species }}</p>
+
+    <a class="btn btn-primary" href="{{ path('editCharacter', {id: character.id}) }}">Modifier</a>
+    <a class="btn btn-danger" href="{{ path('deleteCharacter', {id: character.id}) }}">Supprimer</a>
+</div>
+{% endblock %}

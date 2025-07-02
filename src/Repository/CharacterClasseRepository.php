@@ -16,20 +16,18 @@ class CharacterClasseRepository extends ServiceEntityRepository
         parent::__construct($registry, CharacterClasse::class);
     }
 
-    //    /**
-    //     * @return CharacterClasse[] Returns an array of CharacterClasse objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+       /**
+        * @return CharacterClasse[] Returns an array of CharacterClasse objects
+        */
+       public function findByCharacter($value): array
+       {
+           return $this->createQueryBuilder('c')
+               ->andWhere('c.character = :val')
+               ->setParameter('val', $value)
+               ->getQuery()
+               ->getResult()
+           ;
+       }
 
     //    public function findOneBySomeField($value): ?CharacterClasse
     //    {
